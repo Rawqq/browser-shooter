@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Browser Shooter</title>
+    <style>
+        canvas { background: #222; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+    <canvas id="game" width="600" height="400"></canvas>
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        let player = { x: canvas.width / 2, y: canvas.height - 30, width: 20, height: 20, color: 'lime' };
+        let bullets = [];
+        let keys = {};
+        document.addEventListener('keydown', e => { keys[e.code] = true; });
+        document.addEventListener('keyup', e => { keys[e.code] = false; });
+        function update() {
+            if (keys['ArrowLeft']) player.x -= 5;
+            if (keys['ArrowRight']) player.x += 5;
+            player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+            if (keys['Space']) {
+                bullets.push({ x: player.x + player.width / 2, y: player.y, radius: 5, speed: 7 });
+            }
+            bullets = bullets.map(b => ({ ...b, y: b.y - b.speed })).filter(b => b.y > 0);
+        }
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.fillStyle = 'yellow';
+            bullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+</body>
+</html>
